@@ -9,7 +9,45 @@ Aplikasi ini terdiri dari **dua bagian** yang dipasang terpisah:
 
 Urutan pemasangan: **Backend dulu → salin URL → Frontend**.
 
-> 💡 Sebelum backend dipasang pun, frontend sudah bisa dicoba dalam **MODE DEMO** (data contoh). Buka `index.html` lewat GitHub Pages; label kuning "MODE DEMO" muncul di pojok kiri bawah. Login admin demo: `admin` / `triguna1956`.
+> 💡 Sebelum backend dipasang pun, frontend sudah bisa dicoba dalam **MODE DEMO** (data contoh). Buka `index.html` lewat GitHub Pages; label kuning "MODE DEMO" muncul di pojok kiri bawah. Login admin demo: `admin` / `triguna1956`. Login siswa demo: `raihan@contoh.id` / `0098234190`.
+
+> 🔄 **Sudah memasang versi 1?** Jangan ulangi dari awal — langsung ke **BAGIAN U — Upgrade ke v2** di bawah.
+
+---
+
+## BAGIAN U — Upgrade ke v2 (bagi yang sudah memasang v1)
+
+Data pendaftar, password admin, dan pengaturan lama **tetap aman**. Struktur database diperbarui otomatis.
+
+**U1. Backend**
+1. Buka proyek Apps Script `PPDB Triguna 1956` → hapus seluruh isi `Code.gs` → tempel **`Kode.gs` versi 2** → **Simpan**.
+2. Pilih fungsi **`upgradeSkema`** → ▶ Run. Log menampilkan sheet `Akun` dibuat dan kolom `ID_Akun`, `WA_Ortu` ditambahkan di ujung sheet `Pendaftar`. (Bila lupa, upgrade ini juga berjalan sendiri saat permintaan pertama masuk.)
+3. **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy.** ⚠️ **Jangan** "New deployment" — URL akan berubah.
+
+**U2. Frontend**
+1. Ekstrak ZIP v2, lalu salin isinya **menimpa** folder repository Anda yang lama — **KECUALI `js/config.js`**. Biarkan `config.js` lama (berisi `GAS_URL` Anda). Bila terlanjur tertimpa, isi lagi `GAS_URL` dengan URL `/exec` yang sama.
+2. Di terminal, dari folder repository:
+   ```
+   git add .
+   git commit -m "Upgrade PPDB v2: akun siswa & slideshow"
+   git push
+   ```
+3. Tunggu 1–2 menit, buka situs, tekan **Ctrl+Shift+R** (muat ulang penuh).
+
+**U3. Pengaturan baru di panel admin**
+- **Pengaturan Tampilan → Slideshow Beranda**: unggah beberapa foto (maks. 10, otomatis dikompres), atur urutan dan jeda pergantian (3–30 detik).
+- **Konten & Pendaftaran → Pendaftaran → "Formulir boleh diisi setelah"**:
+  - *Siswa mengunggah bukti bayar* (bawaan) — formulir langsung terbuka setelah bukti diunggah;
+  - *Admin mengonfirmasi pembayaran* — formulir baru terbuka setelah Anda klik Konfirmasi.
+- **Akun & Pembayaran** (menu baru): daftar akun siswa, periksa bukti bayar → **Konfirmasi** / **Tolak** (wajib beri catatan), hubungi via WA, atau **reset password** siswa ke NISN.
+
+**Alur pendaftaran v2 (untuk diumumkan ke calon siswa)**
+1. Klik **Daftar Akun** → isi nama, email, No. WA siswa, No. WA orang tua, asal sekolah, NISN.
+2. Lakukan pembayaran sesuai rekening yang tertera → unggah bukti bayar.
+3. Login di **Masuk**: *username* = email, *password* = NISN (disarankan segera diganti di halaman Akun Saya).
+4. Isi formulir & unggah berkas → kirim → unduh PDF. Status dipantau di **Akun Saya**.
+
+> Pendaftar lama (v1) tidak memiliki akun; mereka tetap bisa memakai **Cek Status** dengan nomor pendaftaran. NISN mereka tidak bisa dipakai membuat akun baru.
 
 ---
 
@@ -104,7 +142,7 @@ Bila browser masih menampilkan versi lama, tekan **Ctrl+Shift+R**. Bila file JS 
 
 1. Buka situs → footer **Login Admin** (atau `…/#/admin`).
 2. Login dengan `admin` / `triguna1956` → aplikasi langsung membuka **Akun Admin** → **ganti password** (minimal 8 karakter).
-3. **Pengaturan Tampilan**: unggah logo sekolah, logo yayasan, favicon, dan foto latar beranda. Pilih tema default pengunjung.
+3. **Pengaturan Tampilan**: unggah logo sekolah, logo yayasan, favicon, dan foto-foto **slideshow beranda**. Pilih tema default pengunjung.
 4. **Konten & Pendaftaran**:
    - *Biaya & Rekening*: isi biaya formulir, nama bank, nomor rekening, dan atas nama.
    - *Jadwal*: isi tanggal resmi PPDB.
@@ -112,8 +150,9 @@ Bila browser masih menampilkan versi lama, tekan **Ctrl+Shift+R**. Bila file JS 
    - *Teks & Identitas*: judul beranda dan jabatan penanda tangan PDF.
    - Terakhir, tab *Pendaftaran*: atur Tahun Ajaran, nyalakan **BUKA**, lalu **Simpan**.
    - (Bawaan setelah setup: pendaftaran **TUTUP**, agar tidak ada yang mendaftar sebelum rekening & jadwal benar.)
-5. **Uji coba**: daftarkan 1–2 siswa uji dari HP → cek email & PDF → proses statusnya di admin → coba **Ekspor Dapodik**.
-6. Hapus data uji: buka spreadsheet `DB_PPDB_Triguna1956` → sheet `Pendaftar` → hapus barisnya (folder berkasnya ada di Drive `Berkas Pendaftar`).
+   - Pilih juga kapan **formulir boleh diisi** (setelah unggah bukti bayar, atau setelah admin konfirmasi).
+5. **Uji coba**: buat 1–2 akun siswa uji dari HP → unggah bukti bayar → konfirmasi di **Akun & Pembayaran** → login siswa → isi formulir → cek email & PDF → proses statusnya → coba **Ekspor Dapodik**.
+6. Hapus data uji: buka spreadsheet `DB_PPDB_Triguna1956` → hapus barisnya di sheet `Akun` dan `Pendaftar` (folder berkasnya ada di Drive `Berkas Pendaftar`).
 
 ---
 
@@ -166,3 +205,8 @@ Batasan yang perlu diketahui:
 | Email tidak terkirim | Kuota Gmail habis (akun biasa ±100/hari, Workspace ±1.500/hari). Pendaftaran tetap tersimpan; kirim ulang dari Detail Pendaftar. |
 | Akun admin terkunci | 5× salah password → tunggu 15 menit. |
 | Lupa password admin | Buka editor Apps Script → pilih fungsi **`resetPasswordAdmin`** → ▶ Run. Login kembali menjadi `admin` / `triguna1956`, lalu segera ganti. |
+| Siswa lupa password | Admin → **Akun & Pembayaran** → buka akun → **Reset Password**. Password kembali menjadi NISN. |
+| Siswa terkunci saat login | 5× salah password → tunggu 15 menit, atau reset password dari admin. |
+| Siswa sudah unggah bukti tapi formulir terkunci | Pengaturan "Formulir boleh diisi setelah" = *Admin mengonfirmasi*. Konfirmasi pembayarannya di **Akun & Pembayaran**. |
+| Setelah upgrade situs tetap tampilan lama | Cache browser. Tekan **Ctrl+Shift+R**; pastikan `index.html` baru ikut ter-push. |
+| Setelah upgrade muncul "MODE DEMO" | `js/config.js` tertimpa versi kosong. Isi kembali `GAS_URL` lalu push. |

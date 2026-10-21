@@ -40,15 +40,15 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 
 /* ---------------- Shell ---------------- */
 const MENU_ADM = [
-  ['NAVIGASI UTAMA'], ['dasbor', 'Dasbor', 'layout-dashboard'], ['pendaftar', 'Data Pendaftar', 'users'], ['ekspor', 'Ekspor Dapodik', 'file-spreadsheet'],
+  ['NAVIGASI UTAMA'], ['dasbor', 'Dasbor', 'layout-dashboard'], ['akunsiswa', 'Akun & Pembayaran', 'wallet'], ['pendaftar', 'Data Pendaftar', 'users'], ['ekspor', 'Ekspor Dapodik', 'file-spreadsheet'],
   ['KONFIGURASI'], ['tampilan', 'Pengaturan Tampilan', 'palette'], ['konten', 'Konten & Pendaftaran', 'settings'], ['backup', 'Backup & Migrasi', 'database-backup'], ['akun', 'Akun Admin', 'user-cog']
 ];
-const JUDUL = { dasbor: 'Dasbor', pendaftar: 'Data Pendaftar', detail: 'Detail & Verifikasi', ekspor: 'Ekspor Dapodik', tampilan: 'Pengaturan Tampilan', konten: 'Konten & Pendaftaran', backup: 'Backup & Migrasi', akun: 'Akun Admin' };
+const JUDUL = { akunsiswa: 'Akun & Pembayaran', dasbor: 'Dasbor', pendaftar: 'Data Pendaftar', detail: 'Detail & Verifikasi', ekspor: 'Ekspor Dapodik', tampilan: 'Pengaturan Tampilan', konten: 'Konten & Pendaftaran', backup: 'Backup & Migrasi', akun: 'Akun Admin' };
 function shell(el) {
   if (el.querySelector('.adm')) return el.querySelector('#adm-content');
   el.innerHTML = `<div class="adm"><aside class="sidebar" aria-label="Menu admin">
     <a class="brand" href="#/admin/dasbor"><img data-logo src="${logoUrl(App.boot || Adm.boot)}" alt="" width="40" height="40" style="background:#fff;border-radius:10px;padding:2px"><span><b>SMA Triguna 1956</b><small>Admin PPDB</small></span></a>
-    ${MENU_ADM.map((m) => m.length === 1 ? `<div class="grp">${m[0]}</div>` : `<a href="#/admin/${m[0]}" data-menu="${m[0]}">${ic(m[2])} ${m[1]}${m[0] === 'pendaftar' ? '<span class="cnt" id="cnt-menunggu" hidden></span>' : ''}</a>`).join('')}
+    ${MENU_ADM.map((m) => m.length === 1 ? `<div class="grp">${m[0]}</div>` : `<a href="#/admin/${m[0]}" data-menu="${m[0]}">${ic(m[2])} ${m[1]}${m[0] === 'pendaftar' ? '<span class="cnt" id="cnt-menunggu" hidden></span>' : m[0] === 'akunsiswa' ? '<span class="cnt" id="cnt-bayar" hidden></span>' : ''}</a>`).join('')}
     <a href="#/" style="margin-top:14px">${ic('globe')} Lihat Portal Publik</a>
     <a href="#" class="keluar" onclick="keluar('Anda telah keluar.');return false">${ic('log-out')} Keluar</a></aside>
     <div class="drawer-bg" onclick="document.body.classList.remove('side-open')"></div>
@@ -62,6 +62,8 @@ function perbaruiShell() {
   const b = Adm.boot; if (!b) return;
   const menunggu = b.list.filter((x) => x.Status_Berkas === 'Menunggu Verifikasi').length;
   const c = $('#cnt-menunggu'); if (c) { c.hidden = !menunggu; c.textContent = menunggu; }
+  const nb = (b.akun || []).filter((x) => x.Status_Bayar === 'Menunggu Konfirmasi').length;
+  const cb = $('#cnt-bayar'); if (cb) { cb.hidden = !nb; cb.textContent = nb; }
   const ps = $('#pill-status'); if (ps) ps.innerHTML = `<span class="badge ${b.status.open ? 'b-hijau' : 'b-tutup'}">PENDAFTARAN: ${b.status.open ? 'BUKA' : 'TUTUP'}</span>`;
   const ta = $('#chip-ta'); if (ta) ta.textContent = 'TA ' + (b.settings.tahun_ajaran || '');
   $$('[data-menu]').forEach((a) => a.classList.toggle('on', a.dataset.menu === (Adm.page === 'detail' ? 'pendaftar' : Adm.page)));
@@ -153,6 +155,9 @@ PAGES_ADM.dasbor = (host) => {
   const terbaru = L.slice().sort((a, b) => (b.Timestamp > a.Timestamp ? 1 : -1)).slice(0, 6);
   host.innerHTML = `<div class="page-head"><div><h2>Dasbor</h2><p>Ringkasan PPDB TA ${esc(Adm.boot.settings.tahun_ajaran)}</p></div>
     <div class="row"><span class="small muted" id="upd">Diperbarui ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span><button class="btn btn-outline btn-sm" id="btn-muat">${ic('refresh-cw', 'ic-sm')} Muat Ulang</button></div></div>
+    ${(() => { const A = Adm.boot.akun || [], nb = A.filter((x) => x.Status_Bayar === 'Menunggu Konfirmasi').length, nf = A.filter((x) => !x.No_Pendaftaran).length;
+      return `<div class="callout ${nb ? 'peringatan' : ''}" style="margin-bottom:16px;align-items:center">${ic('wallet')}<div style="flex:1"><b>${A.length} akun siswa</b> terdaftar · <b>${nb}</b> bukti bayar menunggu konfirmasi · <b>${nf}</b> belum mengirim formulir</div>
+        <a class="btn btn-primer btn-sm" href="#/admin/akunsiswa">Periksa Pembayaran ${ic('arrow-right', 'ic-sm')}</a></div>`; })()}
     <div class="stat-grid">${kartu(h.total, 'Total Pendaftar', 'users', 'primer', hariIni ? '+' + hariIni + ' hari ini' : '')}${kartu(h.menunggu, 'Menunggu Verifikasi', 'hourglass', 'amber')}${kartu(h.lengkap, 'Berkas Lengkap', 'file-check', 'hijau')}${kartu(h.kurang, 'Berkas Kurang', 'file-x', 'merah')}</div>
     <div class="stat-grid" style="margin-top:16px">${kartu(h.bayar, 'Sudah Bayar', 'wallet', 'hijau')}${kartu(h.belumBayar, 'Belum/Menunggu Bayar', 'clock', 'amber')}${kartu(h.diterima, 'Diterima', 'badge-check', 'hijau')}${kartu(h.ditolak, 'Ditolak', 'circle-x', 'merah')}</div>
     <div class="chart-grid"><div class="card"><div class="row-between" style="margin-bottom:10px"><div class="card-title" style="margin:0">${ic('trending-up')} Tren Pendaftar per Hari</div>
@@ -365,6 +370,7 @@ async function ubahStatus(no, field, value) {
   const lama = { [field]: R[field], Catatan_Admin: R.Catatan_Admin };
   R[field] = value; if (note) R.Catatan_Admin = note;
   patchList(no, { [field]: value });
+  if (field === 'Status_Bayar' && R.ID_Akun) { const ak = (Adm.boot.akun || []).find((x) => x.ID_Akun === R.ID_Akun); if (ak) { ak.Status_Bayar = value; setBoot(Adm.boot); perbaruiShell(); } }
   gambarDetail($('#adm-content'), no, det);
   const r = await api('setStatus', { no, field, value, note });
   if (!r.success) { Object.assign(R, lama); patchList(no, { [field]: lama[field] }); gambarDetail($('#adm-content'), no, det); toast('Gagal menyimpan', r.message, 'error'); return; }
@@ -437,7 +443,7 @@ PAGES_ADM.ekspor = (host) => {
    PENGATURAN TAMPILAN
    ===================================================================== */
 const ASET = [['logo_utama', 'Logo Utama Sekolah', 'PNG transparan, persegi · navbar, sidebar, PDF'], ['logo_yayasan', 'Logo Yayasan / Kop PDF', 'PNG persegi · footer & kop PDF'],
-  ['logo_gelap', 'Logo Mode Gelap (opsional)', 'Versi putih/terang agar jelas di latar gelap'], ['favicon', 'Favicon', 'PNG 512×512 · ikon tab browser'], ['bg_hero', 'Background Hero Beranda', 'JPG 1920×1080 · maks 3 MB']];
+  ['logo_gelap', 'Logo Mode Gelap (opsional)', 'Versi putih/terang agar jelas di latar gelap'], ['favicon', 'Favicon', 'PNG 512×512 · ikon tab browser']];
 PAGES_ADM.tampilan = (host) => {
   const a = Adm.boot.assets || {}, s = Adm.boot.settings;
   const fallback = { logo_utama: 'img/logo-triguna.png', logo_yayasan: 'img/logo-triguna.png', favicon: 'img/favicon.png' };
@@ -447,13 +453,43 @@ PAGES_ADM.tampilan = (host) => {
         <b>${t}</b><div class="hint" style="margin-bottom:12px">${h}${a[k] ? '' : fallback[k] ? ' · <i>memakai bawaan</i>' : ''}</div>
         <div class="row"><label class="btn btn-primer btn-sm" style="flex:1">${ic('upload', 'ic-sm')} Unggah dari Komputer<input type="file" accept="image/png,image/jpeg,image/webp" hidden data-up="${k}"></label>
         ${a[k] ? `<button class="btn btn-ghost btn-sm" data-reset="${k}">Kembalikan Default</button>` : ''}</div></div>`).join('')}</div>
+      <div class="card" id="kartu-slide"><div class="row-between" style="margin-bottom:6px"><div class="card-title" style="margin:0">${ic('image')} Foto Slideshow Beranda <span class="chip">${(a.slides || []).length}/10</span></div>
+        <label class="btn btn-primer btn-sm">${ic('upload', 'ic-sm')} Tambah Foto<input type="file" accept="image/png,image/jpeg,image/webp" multiple hidden id="up-slide"></label></div>
+        <p class="small muted">Foto tampil bergantian di layar awal web, layar penuh. Gunakan foto mendatar (landscape), disarankan 1920×1080. Foto otomatis dikecilkan sebelum diunggah.</p>
+        <div class="slide-grid">${(a.slides || []).map((x, i, L) => `<div class="slide-it"><img src="${esc(x.url)}" alt="Foto ${i + 1}" loading="lazy"><span class="no">${i + 1}</span>
+          <div class="ops"><button class="btn-ikon" data-geser="${i}|-1" ${i ? '' : 'disabled'} aria-label="Geser ke kiri">${ic('chevron-left', 'ic-sm')}</button><button class="btn-ikon" data-geser="${i}|1" ${i < L.length - 1 ? '' : 'disabled'} aria-label="Geser ke kanan">${ic('chevron-right', 'ic-sm')}</button>
+          <button class="btn-ikon hapus" data-hapus-slide="${esc(x.id)}" aria-label="Hapus foto">${ic('trash-2', 'ic-sm')}</button></div></div>`).join('') || `<div class="empty" style="grid-column:1/-1;padding:24px">${ic('image', 'ic-xl')}<p class="small">Belum ada foto. Beranda memakai latar warna biru Triguna.</p></div>`}</div>
+        <div class="row" style="margin-top:14px"><label class="lbl" for="s-int">Ganti foto setiap</label><div class="inp-wrap" style="width:120px"><input class="inp" id="s-int" type="number" min="3" max="30" value="${esc(s.slide_interval || '6')}"><span class="suffix">detik</span></div>
+          <button class="btn btn-outline btn-sm" id="sv-int">Simpan</button></div></div>
       <div class="card"><div class="card-title">${ic('sun-moon')} Tema Default Pengunjung</div><p class="small muted">Dipakai bagi pengunjung yang belum pernah memilih tema sendiri.</p>
         <div class="segmen" id="tema-def">${[['IKUTI_PERANGKAT', 'Ikuti Perangkat'], ['TERANG', 'Terang'], ['GELAP', 'Gelap']].map(([v, t]) => `<button data-v="${v}" class="${s.tema_default === v ? 'on' : ''}">${t}</button>`).join('')}</div></div>
     </div>
     <div class="aksi-stack"><div class="card"><div class="row-between" style="margin-bottom:12px"><div class="card-title" style="margin:0">${ic('monitor')} Pratinjau Langsung</div>${temaBtn()}</div>
       <div class="mini-browser"><div class="bar"><span class="dots"><i></i><i></i><i></i></span><img src="${a.favicon || 'img/favicon.png'}" alt="" id="pv-fav"><span>PPDB Online — ${esc(s.nama_sekolah)}</span></div>
-      <div class="mini-hero" id="pv-hero" style="--mini-img:${a.bg_hero ? `url('${a.bg_hero}')` : 'none'}"><div class="bb"><img src="${logoUrl(Adm.boot)}" alt="" id="pv-logo">SMA Triguna 1956</div><div><span class="badge b-buka" style="background:rgba(255,255,255,.15);color:#fff;font-size:10px">PPDB ${esc(s.tahun_ajaran)}</span><h5 style="margin-top:6px">${esc(s.hero_judul)}</h5></div></div></div>
+      <div class="mini-hero" id="pv-hero" style="--mini-img:${(a.slides && a.slides[0]) ? `url('${a.slides[0].url}')` : a.bg_hero ? `url('${a.bg_hero}')` : 'none'}"><div class="bb"><img src="${logoUrl(Adm.boot)}" alt="" id="pv-logo">SMA Triguna 1956</div><div><span class="badge b-buka" style="background:rgba(255,255,255,.15);color:#fff;font-size:10px">PPDB ${esc(s.tahun_ajaran)}</span><h5 style="margin-top:6px">${esc(s.hero_judul)}</h5></div></div></div>
       <p class="hint" style="margin-top:10px">Ganti tema dengan tombol di atas untuk melihat hasil di Mode Terang & Mode Gelap.</p></div></div></div>`;
+  const setSlides = (sl) => { Adm.boot.assets.slides = sl; setBoot(Adm.boot); if (App.boot) { App.boot.assets.slides = sl; Store.del('boot'); } PAGES_ADM.tampilan(host); };
+  $('#up-slide').onchange = async (e) => {
+    const files = Array.from(e.target.files || []); if (!files.length) return;
+    let sl = null;
+    for (const [i, f0] of files.entries()) {
+      toast('Mengunggah foto ' + (i + 1) + ' dari ' + files.length + '…', '', 'info', 2500);
+      const f = await kompresGambar(f0, 1920, 0.82, 1.8 * 1048576);
+      const r = await api('uploadSlide', { mime: f.type, b64: await fileToB64(f) }, { timeout: 120000 });
+      if (!r.success) { toast('Gagal mengunggah ' + f0.name, r.message, 'error'); break; }
+      sl = r.data.slides; if (r.message) toast('Perhatian', r.message, 'warning', 6000);
+    }
+    if (sl) { toast('Foto slideshow ditambahkan'); setSlides(sl); }
+  };
+  $('#kartu-slide').onclick = async (e) => {
+    const g = e.target.closest('[data-geser]'), h = e.target.closest('[data-hapus-slide]');
+    if (g) { const [i, d] = g.dataset.geser.split('|').map(Number); const ids = Adm.boot.assets.slides.map((x) => x.id); [ids[i], ids[i + d]] = [ids[i + d], ids[i]];
+      const r = await api('orderSlides', { ids }); r.success ? setSlides(r.data.slides) : toast('Gagal', r.message, 'error'); }
+    if (h) { if (!(await konfirmasi({ judul: 'Hapus foto ini?', pesan: 'Foto akan dihapus dari slideshow beranda.', ok: 'Hapus', kelas: 'btn-bahaya', ikon: 'trash-2' }))) return;
+      const r = await api('deleteSlide', { id: h.dataset.hapusSlide }); r.success ? (toast('Foto dihapus'), setSlides(r.data.slides)) : toast('Gagal', r.message, 'error'); }
+  };
+  $('#sv-int').onclick = async (e) => { setBusy(e.currentTarget, true); const r = await api('saveSettings', { settings: { slide_interval: $('#s-int').value } }); setBusy(e.currentTarget, false);
+    if (!r.success) return toast('Gagal', r.message, 'error'); setBoot(r.data); Store.del('boot'); toast('Disimpan', 'Foto berganti setiap ' + r.data.settings.slide_interval + ' detik'); };
   host.onchange = async (e) => {
     const inp = e.target.closest('[data-up]'); if (!inp || !inp.files[0]) return;
     const k = inp.dataset.up; let f = inp.files[0];
@@ -516,7 +552,11 @@ function isiKonten() {
   if (t === 'pendaftaran') {
     box.innerHTML = `<div class="card"><div class="row-between"><div><b style="font-size:17px">Status Pendaftaran</b><p class="small muted" style="margin:4px 0 0">Bila TUTUP, tombol Daftar di portal dinonaktifkan dan formulir tidak bisa dikirim.</p></div>
       <label class="row" style="gap:10px;font-weight:700"><span class="switch"><input type="checkbox" data-set="status_pendaftaran" ${s.status_pendaftaran === 'BUKA' ? 'checked' : ''} id="sw-buka"><span></span></span><span id="lbl-buka">${s.status_pendaftaran === 'BUKA' ? 'BUKA' : 'TUTUP'}</span></label></div>
-      <div class="fgrid" style="margin-top:20px">${inputSet('tahun_ajaran', 'Tahun Ajaran', { hint: 'Contoh: 2027/2028 — menentukan awalan nomor pendaftaran' })}<div></div>${inputSet('tanggal_buka', 'Tanggal Buka', { type: 'date', hint: 'Kosongkan bila tanpa batas' })}${inputSet('tanggal_tutup', 'Tanggal Tutup', { type: 'date', hint: 'Kosongkan bila tanpa batas' })}</div>
+      <div class="fgrid" style="margin-top:20px">${inputSet('tahun_ajaran', 'Tahun Ajaran', { hint: 'Contoh: 2027/2028 — menentukan awalan nomor pendaftaran' })}<div></div>${inputSet('tanggal_buka', 'Tanggal Buka', { type: 'date', hint: 'Kosongkan bila tanpa batas' })}${inputSet('tanggal_tutup', 'Tanggal Tutup', { type: 'date', hint: 'Kosongkan bila tanpa batas' })}
+      <div class="field full"><label for="s-formulir_setelah">Formulir lengkap boleh diisi siswa setelah</label><select class="inp" id="s-formulir_setelah" data-set="formulir_setelah">
+        <option value="UPLOAD" ${s.formulir_setelah !== 'KONFIRMASI' ? 'selected' : ''}>Bukti pembayaran diunggah (lebih cepat bagi siswa)</option>
+        <option value="KONFIRMASI" ${s.formulir_setelah === 'KONFIRMASI' ? 'selected' : ''}>Pembayaran dikonfirmasi panitia (lebih ketat)</option></select>
+        <div class="hint">Akun dibuat → bayar → unggah bukti → (syarat ini) → isi formulir.</div></div></div>
       <div class="callout ${Adm.boot.status.open ? 'sukses' : 'peringatan'}" style="margin-top:16px">${ic(Adm.boot.status.open ? 'circle-check' : 'triangle-alert')}<div>Saat ini: <b>${Adm.boot.status.open ? 'Pendaftaran dibuka untuk umum.' : esc(Adm.boot.status.reason)}</b></div></div></div>${simpanBar()}`;
     $('#sw-buka').onchange = (e) => { $('#lbl-buka').textContent = e.target.checked ? 'BUKA' : 'TUTUP'; };
     return ikatSimpanSet();
@@ -679,3 +719,86 @@ PAGES_ADM.akun = (host) => {
     toast('Password diganti', 'Perangkat lain otomatis keluar.'); PAGES_ADM.akun(host);
   };
 };
+
+/* =====================================================================
+   AKUN & PEMBAYARAN — konfirmasi bukti bayar akun siswa
+   ===================================================================== */
+const TAB_AKUN = [['menunggu', 'Menunggu Konfirmasi', (x) => x.Status_Bayar === 'Menunggu Konfirmasi'], ['belum', 'Belum Bayar', (x) => x.Status_Bayar === 'Belum Bayar'],
+  ['ditolak', 'Ditolak', (x) => x.Status_Bayar === 'Ditolak'], ['lunas', 'Terkonfirmasi', (x) => x.Status_Bayar === 'Terkonfirmasi'], ['semua', 'Semua', () => true]];
+const FA = { tab: 'menunggu', q: '', page: 1 };
+PAGES_ADM.akunsiswa = (host) => {
+  const A = Adm.boot.akun || [];
+  host.innerHTML = `<div class="page-head"><div><h2>Akun & Pembayaran <span class="chip">${A.length} akun</span></h2><p>Periksa bukti transfer biaya formulir lalu konfirmasi. Siswa masuk dengan email + NISN.</p></div>
+    <div class="row"><span class="chip">${ic('wallet', 'ic-sm')} Biaya ${rupiah(Adm.boot.settings.biaya_formulir)}</span><button class="btn btn-outline btn-sm" id="ak-muat">${ic('refresh-cw', 'ic-sm')} Muat Ulang</button></div></div>
+    <div class="tabs" id="tabs-ak">${TAB_AKUN.map((t) => `<button data-tab="${t[0]}" class="${FA.tab === t[0] ? 'on' : ''}">${t[1]} <span class="cnt">${A.filter(t[2]).length}</span></button>`).join('')}</div>
+    <div class="card card-pad-sm" style="margin-bottom:14px"><div class="inp-wrap prefix"><span class="pre">${ic('search', 'ic-sm')}</span><input class="inp" id="ak-q" placeholder="Cari nama, email, NISN, asal sekolah, ID akun" value="${esc(FA.q)}" aria-label="Cari akun"></div></div>
+    <div id="ak-tbl"></div>`;
+  $('#ak-q').oninput = debounce((e) => { FA.q = e.target.value; FA.page = 1; tabelAkun(); }, 250);
+  $('#tabs-ak').onclick = (e) => { const b = e.target.closest('[data-tab]'); if (!b) return; FA.tab = b.dataset.tab; FA.page = 1; $$('#tabs-ak button').forEach((x) => x.classList.toggle('on', x === b)); tabelAkun(); };
+  $('#ak-muat').onclick = async (e) => { setBusy(e.currentTarget, true); await muatBoot(true); PAGES_ADM.akunsiswa(host); };
+  tabelAkun();
+};
+function tabelAkun() {
+  const box = $('#ak-tbl'); if (!box) return;
+  const tab = TAB_AKUN.find((t) => t[0] === FA.tab), q = FA.q.toLowerCase();
+  const L = (Adm.boot.akun || []).filter(tab[2]).filter((x) => !q || [x.Nama, x.Email, x.NISN, x.Sekolah_Asal, x.ID_Akun].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => ((FA.tab === 'menunggu' ? a.Waktu_Bukti > b.Waktu_Bukti : a.Timestamp < b.Timestamp) ? 1 : -1) * (FA.tab === 'menunggu' ? -1 : 1));
+  if (!L.length) { box.innerHTML = `<div class="card empty"><div class="ilus">${ic(FA.tab === 'menunggu' ? 'circle-check' : 'inbox', 'ic-xl')}</div><h4>${FA.tab === 'menunggu' ? 'Tidak ada bukti yang menunggu' : 'Tidak ada akun'}</h4><p class="small">${FA.tab === 'menunggu' ? 'Semua pembayaran sudah diperiksa.' : 'Ubah kata kunci atau tab.'}</p></div>`; return; }
+  const pages = Math.max(1, Math.ceil(L.length / PER_PAGE)); FA.page = Math.min(FA.page, pages);
+  const rows = L.slice((FA.page - 1) * PER_PAGE, FA.page * PER_PAGE);
+  const formulir = (x) => x.No_Pendaftaran ? `<a class="mono" href="#/admin/detail/${encodeURIComponent(x.No_Pendaftaran)}">${esc(x.No_Pendaftaran)}</a>` : '<span class="chip">Belum isi</span>';
+  box.innerHTML = `<div class="tbl-wrap resp"><table class="tbl"><thead><tr><th>Akun</th><th>Kontak WhatsApp</th><th>Asal Sekolah · NISN</th><th>Pembayaran</th><th>Formulir</th><th><span class="sr-only">Aksi</span></th></tr></thead><tbody>
+    ${rows.map((x) => `<tr><td><div class="nama-sel"><span class="ini">${inisial(x.Nama)}</span><div><b>${esc(x.Nama)}</b><div class="xs muted">${esc(x.Email)} · <span class="mono">${esc(x.ID_Akun)}</span></div></div></div></td>
+      <td class="small"><a href="${waLink(x.WA_Siswa)}" target="_blank" rel="noopener">${ic('message-circle', 'ic-sm')} Siswa ${esc(x.WA_Siswa)}</a><br><a href="${waLink(x.WA_Ortu)}" target="_blank" rel="noopener">${ic('message-circle', 'ic-sm')} Ortu ${esc(x.WA_Ortu)}</a></td>
+      <td class="small">${esc(x.Sekolah_Asal)}<div class="mono xs muted">${esc(x.NISN)}</div></td>
+      <td>${badgeStatus(x.Status_Bayar)}${x.Waktu_Bukti ? `<div class="xs muted" style="margin-top:4px">Bukti ${tglPendek(x.Waktu_Bukti)}</div>` : ''}</td><td>${formulir(x)}</td>
+      <td><button class="btn ${x.Status_Bayar === 'Menunggu Konfirmasi' ? 'btn-primer' : 'btn-ghost'} btn-sm" data-periksa="${esc(x.ID_Akun)}">${ic(x.Ada_Bukti ? 'receipt' : 'eye', 'ic-sm')} ${x.Status_Bayar === 'Menunggu Konfirmasi' ? 'Periksa' : 'Detail'}</button></td></tr>`).join('')}</tbody></table></div>
+    <div class="kartu-list">${rows.map((x) => `<div class="card"><div class="nama-sel"><span class="ini">${inisial(x.Nama)}</span><div><b>${esc(x.Nama)}</b><div class="xs muted">${esc(x.Email)}</div></div></div>
+      <div class="row">${badgeStatus(x.Status_Bayar)}${formulir(x)}</div><button class="btn btn-primer btn-sm btn-block" data-periksa="${esc(x.ID_Akun)}">${ic('receipt', 'ic-sm')} Periksa</button></div>`).join('')}</div>
+    <div class="pager"><span>Menampilkan ${(FA.page - 1) * PER_PAGE + 1}–${Math.min(FA.page * PER_PAGE, L.length)} dari ${L.length} akun</span><div class="pg">${pages > 1 ? Array.from({ length: pages }, (_, i) => `<button data-pg="${i + 1}" class="${i + 1 === FA.page ? 'on' : ''}">${i + 1}</button>`).join('') : ''}</div></div>`;
+  box.onclick = (e) => {
+    const p = e.target.closest('[data-pg]'); if (p) { FA.page = +p.dataset.pg; tabelAkun(); return; }
+    const b = e.target.closest('[data-periksa]'); if (b) periksaAkun(b.dataset.periksa);
+  };
+}
+async function periksaAkun(id) {
+  const x = (Adm.boot.akun || []).find((a) => a.ID_Akun === id); if (!x) return;
+  const m = modal(`<div class="row-between"><h3 style="margin:0">${ic('receipt')} Pembayaran — ${esc(x.Nama)}</h3><button class="btn-ikon" data-x aria-label="Tutup">${ic('x')}</button></div>
+    <div class="modal-grid">
+      <div class="viewer" id="ak-view" style="min-height:360px">${x.Ada_Bukti ? '<div class="sk" style="width:100%;height:360px"></div>' : `<div class="empty">${ic('file-x', 'ic-xl')}<p>Siswa belum mengunggah bukti pembayaran.</p></div>`}</div>
+      <div class="stack">
+        <div class="kv" style="border:1px solid var(--border);border-radius:12px;overflow:hidden"><div>ID Akun</div><div class="mono">${esc(x.ID_Akun)}</div><div>Email</div><div>${esc(x.Email)}</div><div>NISN</div><div class="mono">${esc(x.NISN)}</div>
+          <div>Asal Sekolah</div><div>${esc(x.Sekolah_Asal)}</div><div>Dibuat</div><div>${tglID(x.Timestamp, true)}</div><div>Status</div><div>${badgeStatus(x.Status_Bayar)}</div>${x.Catatan_Bayar ? `<div>Catatan</div><div>${esc(x.Catatan_Bayar)}</div>` : ''}</div>
+        <div class="callout small">${ic('wallet')}<div>Pastikan nominal <b>${rupiah(Adm.boot.settings.biaya_formulir)}</b> dan rekening tujuan <b>${esc(Adm.boot.settings.bank_norek)}</b> sesuai.</div></div>
+        <div class="row"><button class="btn btn-sukses" style="flex:1" data-bayar="Terkonfirmasi" ${x.Ada_Bukti && x.Status_Bayar !== 'Terkonfirmasi' ? '' : 'disabled'}>${ic('check', 'ic-sm')} Konfirmasi</button>
+          <button class="btn btn-bahaya-o" style="flex:1" data-bayar="Ditolak" ${x.Status_Bayar === 'Ditolak' ? 'disabled' : ''}>${ic('x', 'ic-sm')} Tolak</button></div>
+        <div class="row"><a class="btn btn-ghost btn-sm" href="${waLink(x.WA_Siswa, 'Halo ' + x.Nama + ', ini panitia PPDB SMA Triguna 1956.')}" target="_blank" rel="noopener">${ic('message-circle', 'ic-sm')} WA Siswa</a>
+          <a class="btn btn-ghost btn-sm" href="${waLink(x.WA_Ortu, 'Yth. Orang tua/wali ' + x.Nama + ', ini panitia PPDB SMA Triguna 1956.')}" target="_blank" rel="noopener">${ic('message-circle', 'ic-sm')} WA Ortu</a>
+          <button class="btn btn-ghost btn-sm" data-reset-pw>${ic('key-round', 'ic-sm')} Reset Password</button></div>
+      </div></div>`, { lebar: true });
+  m.querySelector('[data-x]').onclick = () => m.tutup();
+  if (x.Ada_Bukti) {
+    const r = await api('getBuktiAkun', { id });
+    const v = m.querySelector('#ak-view');
+    if (v) { if (!r.success) v.innerHTML = `<div class="empty"><p>${esc(r.message)}</p></div>`;
+      else if (r.data.mime.startsWith('image/')) v.innerHTML = `<img src="data:${r.data.mime};base64,${r.data.b64}" alt="Bukti pembayaran">`;
+      else v.innerHTML = `<iframe src="${URL.createObjectURL(b64ToBlob(r.data.b64, r.data.mime))}" title="Bukti pembayaran"></iframe>`; }
+  }
+  m.querySelectorAll('[data-bayar]').forEach((b) => { b.onclick = async () => {
+    const val = b.dataset.bayar;
+    let note = '';
+    if (val === 'Ditolak') { const j = await konfirmasi({ judul: 'Tolak bukti pembayaran?', pesan: 'Alasan akan tampil di akun siswa dan siswa dapat mengunggah ulang.', ok: 'Tolak', kelas: 'btn-bahaya', ikon: 'triangle-alert', catatan: true, wajib: true, placeholder: 'Contoh: Nominal kurang Rp 50.000 / bukti tidak terbaca' }); if (!j) return; note = j.catatan; }
+    const lama = x.Status_Bayar;
+    x.Status_Bayar = val; x.Catatan_Bayar = note; setBoot(Adm.boot); perbaruiShell(); tabelAkun(); m.tutup();     // optimistic
+    const r = await api('setBayarAkun', { id, value: val, note });
+    if (!r.success) { x.Status_Bayar = lama; setBoot(Adm.boot); perbaruiShell(); tabelAkun(); return toast('Gagal menyimpan', r.message, 'error'); }
+    if (x.No_Pendaftaran) patchList(x.No_Pendaftaran, { Status_Bayar: val });
+    PAGES_ADM.akunsiswa($('#adm-content'));
+    toast(val === 'Terkonfirmasi' ? 'Pembayaran dikonfirmasi' : 'Bukti ditolak', x.Nama);
+  }; });
+  m.querySelector('[data-reset-pw]').onclick = async () => {
+    if (!(await konfirmasi({ judul: 'Reset password siswa?', pesan: `Password <b>${esc(x.Nama)}</b> dikembalikan ke NISN (<span class="mono">${esc(x.NISN)}</span>). Sesi lama siswa akan keluar.`, ok: 'Reset', kelas: 'btn-bahaya', ikon: 'key-round' }))) return;
+    const r = await api('resetPasswordSiswa', { id });
+    r.success ? toast('Password direset', 'Password = NISN') : toast('Gagal', r.message, 'error');
+  };
+}

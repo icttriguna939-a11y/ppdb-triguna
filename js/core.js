@@ -49,11 +49,11 @@ const Perf = {
 window.Perf = Perf;
 
 /* ---------------- API: timeout, retry baca, reqId untuk tulis ---------------- */
-const READ_ACTIONS = /^(ping|publicBoot|cekStatus|getPdf|login|adminBoot|getDetail|getFile|getLogs|exportDapodik|listBackups|importScan)$/;
+const READ_ACTIONS = /^(ping|publicBoot|cekStatus|getPdf|login|loginSiswa|siswaBoot|siswaPdf|adminBoot|getDetail|getFile|getLogs|getBuktiAkun|exportDapodik|listBackups|importScan)$/;
 const App = { token: '', boot: null };
 
-async function apiOnce(action, data, timeout, reqId) {
-  if (DEMO) { if (!window.DemoAPI) await loadScript('js/demo.js'); const t0 = performance.now(); const r = await window.DemoAPI(action, data, App.token); Perf.add(action, Math.round(performance.now() - t0), r.ms); return r; }
+async function apiOnce(action, data, timeout, reqId, token) {
+  if (DEMO) { if (!window.DemoAPI) await loadScript('js/demo.js'); const t0 = performance.now(); const r = await window.DemoAPI(action, data, token); Perf.add(action, Math.round(performance.now() - t0), r.ms); return r; }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeout);
   const t0 = performance.now();
@@ -61,7 +61,7 @@ async function apiOnce(action, data, timeout, reqId) {
     const res = await fetch(GAS_URL, {
       method: 'POST', redirect: 'follow', cache: 'no-store', signal: ctrl.signal,
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },        // wajib: hindari CORS preflight
-      body: JSON.stringify({ action, token: App.token || '', reqId, data: data || {} })
+      body: JSON.stringify({ action, token: token || '', reqId, data: data || {} })
     });
     const text = await res.text();
     try { const j = JSON.parse(text); Perf.add(action, Math.round(performance.now() - t0), j.ms); return j; }
@@ -77,10 +77,10 @@ async function api(action, data, opt = {}) {
   let res;
   for (let i = 0; i < tries; i++) {
     if (i) { await new Promise((r) => setTimeout(r, 1200 * i)); if (navigator.onLine === false) await waitOnline(15000); }
-    res = await apiOnce(action, data, opt.timeout || (isRead ? (i ? 45000 : 30000) : 120000), reqId);
+    res = await apiOnce(action, data, opt.timeout || (isRead ? (i ? 45000 : 30000) : 120000), reqId, opt.token !== undefined ? opt.token : App.token);
     if (res.success || !res.retryable) break;
   }
-  if (!res.success && res.data && res.data.code === 'AUTH' && window.onSessionExpired) window.onSessionExpired();
+  if (!res.success && res.data && res.data.code === 'AUTH') { if (opt.onAuth) opt.onAuth(res); else if (window.onSessionExpired) window.onSessionExpired(); }
   return res;
 }
 function waitOnline(ms) { return new Promise((r) => { if (navigator.onLine !== false) return r(); const t = setTimeout(done, ms); function done() { clearTimeout(t); removeEventListener('online', done); r(); } addEventListener('online', done); }); }

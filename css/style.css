@@ -579,3 +579,44 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
 .status3 { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .tbl td .nama-sel { min-width: 180px; }
 @media (max-width: 520px) { .nav .nav-aksi .btn-aksen { display: none; } .nav .brand b { font-size: 15px; } .nav .wrap { gap: 8px; } }
+
+/* ---------- v2: hero layar penuh + slideshow ---------- */
+.hero.hero-full { min-height: 100vh; min-height: 100svh; background-image: none; padding-bottom: 140px; }
+.hero .slides { position: absolute; inset: 0; z-index: 0; background: radial-gradient(circle at 80% 20%, #0096D6 0, transparent 45%), radial-gradient(circle at 10% 90%, #004A87 0, transparent 55%), var(--primer-gelap); }
+.hero .slide { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.2s ease; transform: scale(1.06); }
+.hero .slide.on { opacity: 1; animation: kenburns 14s ease-out forwards; }
+@keyframes kenburns { from { transform: scale(1.06); } to { transform: scale(1); } }
+.hero .hero-ov { position: absolute; inset: 0; z-index: 1; background: linear-gradient(100deg, rgba(0,48,90,.86) 0%, rgba(0,48,90,.55) 48%, rgba(0,48,90,.15) 100%), linear-gradient(to top, rgba(0,48,90,.55), transparent 35%); }
+[data-tema="gelap"] .hero .hero-ov { background: linear-gradient(100deg, rgba(11,19,32,.9) 0%, rgba(11,19,32,.62) 50%, rgba(11,19,32,.2) 100%), linear-gradient(to top, rgba(11,19,32,.7), transparent 35%); }
+.hero .hero-pola { z-index: 1; }
+.hero .hero-isi { position: relative; z-index: 2; }
+.hero::after { z-index: 2; }
+.slide-nav { position: absolute; z-index: 3; left: 50%; bottom: 96px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; }
+.slide-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.4); background: rgba(0,0,0,.18); color: #fff; display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(6px); }
+.slide-btn:hover { background: rgba(255,255,255,.18); }
+.dots { display: flex; gap: 8px; }
+.dots button { width: 10px; height: 10px; border-radius: 999px; border: 0; padding: 0; background: rgba(255,255,255,.5); cursor: pointer; transition: width .3s, background-color .3s; }
+.dots button.on { width: 28px; background: var(--aksen); }
+.scroll-hint { position: absolute; z-index: 3; right: 32px; bottom: 96px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: #fff; border: 1px solid rgba(255,255,255,.35); animation: naikturun 2s ease-in-out infinite; }
+.scroll-hint:hover { text-decoration: none; background: rgba(255,255,255,.12); }
+@keyframes naikturun { 50% { transform: translateY(6px); } }
+@media (max-width: 640px) { .slide-nav { bottom: 90px; } .slide-btn { display: none; } .scroll-hint { display: none; } .hero.hero-full { padding-bottom: 130px; } }
+.btn-outline-putih { background: transparent; border-color: currentColor; color: inherit; }
+.btn-outline-putih:hover { background: rgba(127,127,127,.12); }
+.nav-akun { display: inline-flex; gap: 8px; }
+@media (max-width: 760px) { .nav .nav-akun { display: none; } }
+.slide-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); margin-top: 12px; }
+.slide-it { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); aspect-ratio: 16 / 10; background: var(--surface-2); }
+.slide-it img { width: 100%; height: 100%; object-fit: cover; }
+.slide-it .no { position: absolute; top: 8px; left: 8px; background: var(--aksen); color: var(--aksen-teks); font-weight: 800; font-size: 12px; border-radius: 999px; padding: 1px 8px; }
+.slide-it .ops { position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 6px; justify-content: center; padding: 8px; background: linear-gradient(to top, rgba(0,0,0,.6), transparent); }
+.slide-it .btn-ikon { --h: 32px; width: 32px; height: 32px; background: rgba(255,255,255,.9); color: #0F1E33; border: 0; }
+.slide-it .btn-ikon.hapus { color: #B5123E; }
+.slide-it .btn-ikon[disabled] { opacity: .4; }
+.hero-full ~ .info-strip { margin-top: 28px; }
+.biaya-card.bayar-fleks { grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); padding: 24px; }
+.biaya-card .rek .norek { overflow-wrap: anywhere; }
+.bayar-fleks .nominal { font-size: clamp(30px, 4vw, 40px); }
+.grid > *, .detail-grid > *, .chart-grid > *, .stat-grid > *, .stack > *, .form-layout > * { min-width: 0; }
+.modal-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.3fr) minmax(240px, 1fr); margin-top: 14px; }
+@media (max-width: 760px) { .modal-grid { grid-template-columns: 1fr; } .modal-grid .viewer { min-height: 260px !important; } }
