@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="id" data-tema="terang">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PPDB Online SMA Triguna 1956 Jakarta</title>
+  <meta name="description" content="Pendaftaran Peserta Didik Baru (PPDB) online SMA Triguna 1956 Jakarta — daftar dari rumah, unggah berkas, dan pantau status pendaftaran.">
+  <meta name="theme-color" content="#004A87">
+  <meta property="og:title" content="PPDB Online SMA Triguna 1956 Jakarta">
+  <meta property="og:description" content="Daftar dari rumah, tanpa antre, tanpa beli formulir di sekolah.">
+  <meta property="og:image" content="img/logo-triguna.png">
+  <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="apple-touch-icon" href="img/logo-triguna.png">
+  <!-- Tema diterapkan SEBELUM halaman tampil → tidak ada kedipan putih di Mode Gelap -->
+  <script>
+    (function () {
+      var t = null, d = null;
+      try { t = localStorage.getItem('ppdb:tema'); d = localStorage.getItem('ppdb:tema-default'); } catch (e) {}
+      if (!t) t = d === 'GELAP' ? 'gelap' : d === 'TERANG' ? 'terang' : (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'gelap' : 'terang');
+      document.documentElement.setAttribute('data-tema', t);
+      if (t === 'gelap') document.write('<style>html,body{background:#0B1320}</style>');
+    })();
+  </script>
+  <link rel="preconnect" href="https://script.google.com">
+  <link rel="preconnect" href="https://script.googleusercontent.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap">
+  <link rel="stylesheet" href="css/style.css?v=1.0.0">
+  <script defer src="js/config.js?v=1.0.0"></script>
+  <script defer src="js/icons.js?v=1.0.0"></script>
+  <script defer src="js/core.js?v=1.0.0"></script>
+  <script defer src="js/public.js?v=1.0.0"></script>
+</head>
+<body data-layout="publik">
+  <a class="sr-only" href="#app">Lewati ke konten</a>
+  <div id="app"></div>
+  <noscript><div style="padding:40px;text-align:center;font-family:sans-serif">Aktifkan JavaScript untuk membuka PPDB Online SMA Triguna 1956.</div></noscript>
+</body>
+</html>
