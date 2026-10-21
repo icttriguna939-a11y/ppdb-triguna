@@ -416,6 +416,29 @@ function apiS(action, data, opt = {}) {
 const headFokus = (judul, kanan = '') => `<div class="fokus-head"><div class="wrap"><a class="brand" href="#/"><img data-logo src="${logoUrl(App.boot)}" alt="" width="36" height="36"><span><b style="font-size:15px">${judul}</b><small>SMA Triguna 1956</small></span></a>
   <span style="margin-left:auto"></span>${temaBtn()}${kanan}</div></div>`;
 
+/* ---------------- Kerangka halaman Masuk / Daftar (kartu terbelah + tepi awan) ---------------- */
+function authShell(isi, o = {}) {
+  const d = App.boot || {}, s = d.settings || {};
+  const ta = s.tahun_ajaran || '';
+  return `<div class="auth-page"><div class="auth-card ${o.lebar ? 'lebar' : ''}">
+    <aside class="auth-sisi">
+      <div class="auth-sisi-isi">
+        <div class="auth-sapa">Selamat Datang di</div>
+        <div class="auth-logo"><img data-logo src="${logoUrl(d)}" alt="Logo SMA Triguna 1956" width="84" height="84"></div>
+        <h1 class="auth-nama">PPDB Online</h1>
+        <div class="auth-sek">SMA Triguna 1956 Jakarta</div>
+        <p class="auth-desk">${esc(o.desk || 'Daftar dari rumah tanpa antre. Buat akun, lakukan pembayaran, lalu isi formulir pendaftaran secara online.')}</p>
+        ${ta ? `<span class="auth-ta">${ic('calendar', 'ic-sm')} Tahun Ajaran ${esc(ta)}</span>` : ''}
+      </div>
+      <div class="auth-kaki"><a href="#/">BERANDA</a><span></span><a href="#/status">CEK STATUS</a></div>
+      <div class="awan" aria-hidden="true"><i></i><i></i><i></i></div>
+    </aside>
+    <main class="auth-isi">
+      <div class="auth-atas"><a class="auth-kembali" href="#/">${ic('arrow-left', 'ic-sm')} Beranda</a>${temaBtn()}</div>
+      ${isi}
+    </main></div></div>`;
+}
+
 /* ---------------- Kartu petunjuk pembayaran (dipakai di Daftar & Dasbor) ---------------- */
 function kartuBayar(b) {
   b = b || (App.boot && App.boot.settings) || {};
@@ -494,20 +517,19 @@ function renderDaftarAkun() {
   const d = App.boot, st = (d && d.status) || {};
   const sb = Siswa.sesi() && Siswa.boot;
   if (sb) DA.step = ['Belum Bayar', 'Ditolak'].includes(sb.akun.Status_Bayar) && DA.step < 3 ? 2 : 3;
-  const head = headFokus('Daftar PPDB', `<a class="btn btn-ghost btn-sm" href="#/masuk">${ic('log-out', 'ic-sm')} <span class="hide-xs">Sudah punya akun? Masuk</span></a>`);
-  if (!d) { el.innerHTML = head + `<div class="fokus-body"><div class="wrap" style="max-width:760px"><div class="card"><div class="sk sk-h"></div><div class="sk sk-box"></div></div></div></div>`; return; }
+  if (!d) { el.innerHTML = authShell(`<div class="sk sk-h"></div><div class="sk sk-box"></div>`); return; }
   if (!st.open && !sb) {
-    el.innerHTML = head + `<div class="fokus-body"><div class="wrap" style="max-width:640px"><div class="card empty"><div class="ilus">${ic('calendar-x', 'ic-xl')}</div><h3>Pendaftaran belum tersedia</h3><p>${esc(st.reason || '')}</p>
-      <div class="row" style="justify-content:center"><a class="btn btn-primer" href="#/">Beranda</a><a class="btn btn-outline" href="#/masuk">Masuk</a></div></div></div></div>`;
+    el.innerHTML = authShell(`<div class="empty" style="padding:24px 0"><div class="ilus">${ic('calendar-x', 'ic-xl')}</div><h3>Pendaftaran belum tersedia</h3><p>${esc(st.reason || '')}</p>
+      <div class="auth-aksi" style="justify-content:center"><a class="btn-pil isi" href="#/">Beranda</a><a class="btn-pil garis" href="#/masuk">Masuk</a></div></div>`);
     return;
   }
   let isi = '';
   if (DA.step === 1) {
-    isi = `<h2 style="font-size:22px;margin-bottom:4px">Buat Akun Pendaftaran</h2><p class="muted small" style="margin-bottom:18px">Isi data singkat di bawah. Setelah itu lakukan pembayaran, lalu masuk untuk mengisi formulir lengkap.</p>
-      <div class="callout" style="margin-bottom:18px">${ic('key-round')}<div><b>Data masuk Anda nanti:</b><br>Username = <b>email siswa</b> · Password = <b>NISN</b> (bisa diganti setelah masuk)</div></div>
-      <form id="frm-akun" novalidate><div class="fgrid">${AKUN_FIELDS.map((f) => fieldHtml(f, DA)).join('')}</div>
-      <label class="cek" style="margin-top:18px"><input type="checkbox" id="setuju-akun"> Data yang saya isi benar dan saya menyetujui penggunaannya untuk keperluan PPDB.</label></form>
-      <div class="aksi-bar"><a class="btn btn-outline" href="#/">${ic('arrow-left')} Batal</a><button class="btn btn-aksen" type="button" id="btn-buat" disabled>Buat Akun & Lanjut ${ic('arrow-right')}</button></div>`;
+    isi = `<h2 class="auth-judul">Buat Akun Anda</h2>
+      <p class="auth-sub">Username = <b>email siswa</b> · Password = <b>NISN</b></p>
+      <form id="frm-akun" class="auth-form" novalidate><div class="fgrid">${AKUN_FIELDS.map((f) => fieldHtml(f, DA)).join('')}</div>
+      <label class="cek auth-cek"><input type="checkbox" id="setuju-akun"> <span>Data yang saya isi benar dan saya menyetujui <b>penggunaannya untuk keperluan PPDB</b>.</span></label>
+      <div class="auth-aksi"><button class="btn-pil isi" type="submit" id="btn-buat" disabled>Daftar</button><a class="btn-pil garis" href="#/masuk">Masuk</a></div></form>`;
   } else if (DA.step === 2) {
     const ak = sb.akun;
     isi = `<h2 style="font-size:22px;margin-bottom:4px">Pembayaran Formulir</h2><p class="muted small" style="margin-bottom:18px">Akun <b>${esc(ak.Email)}</b> berhasil dibuat. Lakukan pembayaran lalu unggah buktinya.</p>
@@ -527,7 +549,9 @@ function renderDaftarAkun() {
         <a class="btn ${sb.gate.open ? 'btn-outline' : 'btn-primer'} btn-lg" href="#/akun">${ic('user')} Ke Akun Saya</a></div>
       ${sb.gate.open ? '' : `<p class="hint" style="text-align:center;margin-top:12px">${esc(sb.gate.reason)}</p>`}`;
   }
-  el.innerHTML = head + `<div class="fokus-body"><div class="wrap" style="max-width:820px"><main class="card form-card">${stepperDA(DA.step)}${isi}</main></div></div>`;
+  el.innerHTML = authShell(stepperDA(DA.step) + isi, { lebar: DA.step === 2,
+    desk: DA.step === 1 ? 'Buat akun pendaftaran dengan data singkat. Setelah itu lakukan pembayaran, lalu masuk untuk mengisi formulir lengkap.'
+      : DA.step === 2 ? 'Satu langkah lagi: transfer biaya formulir dan unggah bukti pembayarannya.' : 'Akun siap dipakai. Masuk kapan saja untuk mengisi formulir dan memantau status.' });
   if (DA.step === 1) ikatDaftarAkun();
   if (DA.step === 2) { const root = el.querySelector('main'); ikatBukti(root, () => { $('#btn-bukti').disabled = !(Bukti.f && Bukti.f.ok); }); $('#btn-bukti').onclick = async (e) => { if (await kirimBukti(e.currentTarget)) { DA.step = 3; renderDaftarAkun(); window.scrollTo(0, 0); } }; }
 }
@@ -540,11 +564,11 @@ function ikatDaftarAkun() {
     DA.data[f.k] = f.upper ? t.value.toUpperCase() : t.value;
     const box = t.closest('.field');
     if (box.classList.contains('err') && !validasiField(f, t.value)) { box.classList.remove('err'); delete DA.errors[f.k]; }
-    if (f.len) box.classList.toggle('ok', t.value.length === f.len);
+    box.classList.toggle('ok', !!t.value.trim() && !validasiField(f, t.value));
     Store.set('draft-akun', DA.data);
   });
   frm.addEventListener('focusout', (e) => { const t = e.target, f = AKUN_FIELDS.find((x) => x.k === t.name); if (f && String(t.value).trim()) tandaiS(DA, f.k, validasiField(f, t.value)); });
-  frm.onsubmit = (e) => e.preventDefault();
+  frm.onsubmit = (e) => { e.preventDefault(); if (!btn.disabled) btn.onclick(); };
   btn.onclick = async () => {
     let pertama = null;
     AKUN_FIELDS.forEach((f) => { const m = validasiField(f, DA.data[f.k]); tandaiS(DA, f.k, m); if (m && !pertama) pertama = f.k; });
@@ -593,22 +617,19 @@ registerPage('masuk', {
   show(el) {
     if (Siswa.sesi()) { go('akun'); return; }
     const s = (App.boot && App.boot.settings) || {};
-    el.innerHTML = headFokus('Masuk Akun PPDB', `<a class="btn btn-ghost btn-sm" href="#/">${ic('arrow-left', 'ic-sm')} <span class="hide-xs">Beranda</span></a>`) + `
-    <div class="fokus-body"><div class="wrap" style="max-width:460px"><form class="card" id="ms-form" novalidate style="padding:30px">
-      <div style="text-align:center;margin-bottom:8px"><img data-logo src="${logoUrl(App.boot)}" alt="" width="64" height="64" style="margin:0 auto 10px"><div class="overline">Akun Calon Siswa</div><h2 style="font-size:24px;margin:6px 0 2px">Masuk</h2>
-        <p class="muted small">Masuk untuk membayar, mengisi formulir, dan memantau status pendaftaran.</p></div>
-      <div id="ms-err"></div>
-      <div class="stack" style="margin-top:14px">
-        <div class="field"><label for="ms-u">Username (Email Siswa)</label><input id="ms-u" class="inp" type="email" autocomplete="username" inputmode="email" autocapitalize="none" placeholder="nama@email.com"></div>
-        <div class="field"><label for="ms-p">Password</label><div class="inp-wrap"><input id="ms-p" class="inp" type="password" autocomplete="current-password" style="padding-right:48px" placeholder="NISN (10 digit) bila belum diganti">
-          <button type="button" class="btn-ikon" id="ms-eye" aria-label="Tampilkan password" style="position:absolute;right:4px;top:2px;border:0">${ic('eye')}</button></div></div>
-        <button class="btn btn-primer btn-block btn-lg" id="ms-btn">${ic('log-out')} Masuk</button>
-      </div>
-      <p class="small" style="text-align:center;margin:18px 0 0">Belum punya akun? <a href="#/daftar"><b>Daftar sekarang</b></a></p>
-      ${s.kontak_wa ? `<p class="hint" style="text-align:center;margin:6px 0 0">Lupa password? <a href="${waLink(s.kontak_wa, 'Halo Panitia PPDB, saya lupa password akun. Email saya: ')}" target="_blank" rel="noopener">Hubungi panitia</a> untuk mengembalikannya ke NISN.</p>` : ''}
-      ${DEMO ? '<p class="hint" style="text-align:center">Mode demo: <b>raihan@contoh.id</b> / <b>0098234190</b></p>' : ''}
-    </form></div></div>`;
-    $('#ms-eye').onclick = () => { const i = $('#ms-p'); i.type = i.type === 'password' ? 'text' : 'password'; $('#ms-eye').innerHTML = ic(i.type === 'password' ? 'eye' : 'eye-off'); };
+    el.innerHTML = authShell(`<h2 class="auth-judul">Masuk ke Akun Anda</h2>
+      <form id="ms-form" class="auth-form" novalidate>
+        <div id="ms-err"></div>
+        <div class="field"><label for="ms-u">Username (Email Siswa)</label><div class="inp-wrap"><input id="ms-u" class="inp" type="email" autocomplete="username" inputmode="email" autocapitalize="none" placeholder="Masukkan email Anda"><span class="ok-ic">${ic('circle-check', 'ic-sm')}</span></div></div>
+        <div class="field"><label for="ms-p">Password</label><div class="inp-wrap"><input id="ms-p" class="inp" type="password" autocomplete="current-password" placeholder="NISN (10 digit) bila belum diganti">
+          <button type="button" class="auth-mata" id="ms-eye" aria-label="Tampilkan password">${ic('eye', 'ic-sm')}</button></div></div>
+        ${s.kontak_wa ? `<p class="auth-lupa"><a href="${waLink(s.kontak_wa, 'Halo Panitia PPDB, saya lupa password akun. Email saya: ')}" target="_blank" rel="noopener">Lupa password?</a></p>` : ''}
+        <div class="auth-aksi"><button class="btn-pil isi" id="ms-btn">Masuk</button><a class="btn-pil garis" href="#/daftar">Daftar</a></div>
+        <p class="hint" style="margin-top:14px">Belum punya akun? Klik <b>Daftar</b> untuk membuat akun pendaftaran.</p>
+        ${DEMO ? '<p class="hint">Mode demo: <b>raihan@contoh.id</b> / <b>0098234190</b></p>' : ''}
+      </form>`, { desk: 'Masuk dengan email siswa sebagai username dan NISN sebagai password awal.' });
+    $('#ms-u').oninput = (e) => e.target.closest('.field').classList.toggle('ok', /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.target.value.trim()));
+    $('#ms-eye').onclick = () => { const i = $('#ms-p'); i.type = i.type === 'password' ? 'text' : 'password'; $('#ms-eye').innerHTML = ic(i.type === 'password' ? 'eye' : 'eye-off', 'ic-sm'); };
     $('#ms-form').onsubmit = async (e) => {
       e.preventDefault();
       const u = $('#ms-u').value.trim(), pw = $('#ms-p').value.trim();

@@ -620,3 +620,107 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
 .grid > *, .detail-grid > *, .chart-grid > *, .stat-grid > *, .stack > *, .form-layout > * { min-width: 0; }
 .modal-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.3fr) minmax(240px, 1fr); margin-top: 14px; }
 @media (max-width: 760px) { .modal-grid { grid-template-columns: 1fr; } .modal-grid .viewer { min-height: 260px !important; } }
+
+/* =====================================================================
+   HALAMAN MASUK & DAFTAR — kartu terbelah, panel biru, tepi awan
+   ===================================================================== */
+body[data-layout="fokus"] .auth-page { min-height: 100vh; }
+.auth-page { min-height: 100vh; display: grid; place-items: center; padding: 32px 16px; background:
+  radial-gradient(1200px 500px at 10% -10%, var(--primer-tint), transparent 60%), var(--bg-alt); }
+.auth-card { width: 100%; max-width: 1000px; min-height: 600px; display: grid; grid-template-columns: 42% 58%; background: var(--surface);
+  border-radius: 24px; overflow: hidden; box-shadow: var(--bayangan-3); }
+.auth-card.lebar { max-width: 1140px; grid-template-columns: 34% 66%; }
+.auth-card > * { min-width: 0; }
+.auth-sisi { position: relative; color: #fff; display: flex; flex-direction: column; padding: 44px 92px 26px 40px; text-align: center;
+  background: linear-gradient(165deg, #004A87 0%, #0062AE 50%, #0096D6 100%); }
+[data-tema="gelap"] .auth-sisi { background: linear-gradient(165deg, #0B2545 0%, #0E3A66 55%, #075985 100%); }
+.auth-sisi-isi { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; position: relative; z-index: 1; }
+.auth-sapa { font-family: var(--font-judul); font-size: 22px; font-weight: 600; letter-spacing: .2px; margin-bottom: 18px; opacity: .95; }
+.auth-logo { width: 112px; height: 112px; border-radius: 50%; background: #fff; display: grid; place-items: center; box-shadow: 0 10px 28px rgba(0,30,60,.35); margin-bottom: 14px; }
+.auth-logo img { width: 84px; height: 84px; object-fit: contain; }
+.auth-nama { font-family: var(--font-judul); font-size: 30px; font-weight: 800; color: #fff; margin: 0; line-height: 1.15; }
+.auth-sek { font-weight: 600; opacity: .9; font-size: 15px; }
+.auth-desk { font-size: 13.5px; line-height: 1.6; opacity: .82; max-width: 300px; margin: 18px auto 0; }
+.auth-ta { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: 12.5px; font-weight: 600; }
+.auth-kaki { position: relative; z-index: 1; display: flex; justify-content: center; align-items: center; gap: 14px; font-size: 11.5px; letter-spacing: .6px; padding-top: 18px; }
+.auth-kaki a { color: #fff; opacity: .8; font-weight: 700; text-decoration: none; }
+.auth-kaki a:hover { opacity: 1; text-decoration: underline; }
+.auth-kaki span { width: 1px; height: 14px; background: rgba(255,255,255,.5); }
+
+/* Tepi awan: 3 lapis, warnanya = warna panel form (ikut tema) */
+.awan { position: absolute; top: 0; bottom: 0; right: -1px; width: 80px; pointer-events: none; }
+.awan i { position: absolute; inset: 0; background: var(--surface);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='160'%3E%3Crect x='50' width='30' height='160'/%3E%3Ccircle cx='52' cy='24' r='28'/%3E%3Ccircle cx='40' cy='82' r='34'/%3E%3Ccircle cx='54' cy='138' r='26'/%3E%3Ccircle cx='50' cy='0' r='20'/%3E%3Ccircle cx='50' cy='160' r='20'/%3E%3C/svg%3E") 0 0 / 80px 160px repeat-y;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='160'%3E%3Crect x='50' width='30' height='160'/%3E%3Ccircle cx='52' cy='24' r='28'/%3E%3Ccircle cx='40' cy='82' r='34'/%3E%3Ccircle cx='54' cy='138' r='26'/%3E%3Ccircle cx='50' cy='0' r='20'/%3E%3Ccircle cx='50' cy='160' r='20'/%3E%3C/svg%3E") 0 0 / 80px 160px repeat-y; }
+.awan i:nth-child(1) { transform: translateX(-30px); opacity: .22; -webkit-mask-position: 0 55px; mask-position: 0 55px; }
+.awan i:nth-child(2) { transform: translateX(-15px); opacity: .45; -webkit-mask-position: 0 105px; mask-position: 0 105px; }
+
+/* Panel form */
+.auth-isi { padding: 26px 48px 36px 34px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+.auth-atas { position: absolute; top: 18px; left: 34px; right: 24px; display: flex; align-items: center; justify-content: space-between; }
+.auth-kembali { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--teks-2); text-decoration: none; }
+.auth-kembali:hover { color: var(--primer); }
+.auth-isi > .stepper, .auth-isi > .step-mobile { margin-top: 44px; }
+.auth-isi > .auth-judul:first-of-type { margin-top: 44px; }
+.auth-judul { font-family: var(--font-judul); font-size: 26px; font-weight: 700; text-align: center; margin: 0 0 6px; color: var(--teks); }
+.auth-sub { text-align: center; color: var(--teks-2); font-size: 13.5px; margin: 0 0 22px; }
+.auth-form .fgrid { gap: 16px 22px; }
+.auth-isi .field > label { font-size: 13px; color: var(--teks); }
+.auth-isi .inp { border: 0; border-bottom: 1.5px solid var(--border); border-radius: 0; background: transparent; padding: 8px 30px 8px 0; min-height: 40px; box-shadow: none; }
+.auth-isi .inp:focus { border-bottom-color: var(--sekunder); box-shadow: 0 1.5px 0 var(--sekunder); }
+.auth-isi .inp::placeholder { font-size: 13px; }
+.auth-isi .field.ok .inp { border-bottom-color: var(--sekunder); }
+.auth-isi .inp-wrap .ok-ic { right: 2px; color: var(--sekunder); }
+.auth-isi .field.err .inp { border-bottom-color: var(--bahaya); box-shadow: none; }
+.auth-isi .hint { font-size: 12px; }
+.auth-mata { position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: none; border: 0; color: var(--teks-2); padding: 8px; cursor: pointer; border-radius: 8px; }
+.auth-mata:hover { color: var(--primer); }
+.auth-cek { margin-top: 20px; font-size: 13px; color: var(--teks-2); }
+.auth-cek b { color: var(--sekunder); font-weight: 600; }
+.auth-cek input { width: 18px; height: 18px; }
+.auth-lupa { text-align: right; font-size: 12.5px; margin: -4px 0 0; }
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+.auth-form > .fgrid + .auth-cek { margin-top: 4px; }
+.auth-aksi { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; }
+.btn-pil { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; min-width: 128px; padding: 0 30px; border-radius: 999px;
+  font: 600 15px var(--font); cursor: pointer; text-decoration: none; transition: transform .15s, box-shadow .15s, background .15s, opacity .15s; border: 1.5px solid transparent; }
+.btn-pil.isi { color: #fff; background: linear-gradient(135deg, #0062AE, #0096D6); box-shadow: 0 6px 16px rgba(0,98,174,.35); }
+.btn-pil.isi:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,98,174,.4); }
+.btn-pil.garis { color: var(--teks-2); background: transparent; border-color: var(--border); }
+.btn-pil.garis:hover { border-color: var(--sekunder); color: var(--sekunder); }
+.btn-pil:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+.btn-pil:focus-visible { outline: none; box-shadow: var(--fokus); }
+.auth-isi .aksi-bar { background: linear-gradient(to top, var(--surface) 75%, transparent); }
+
+@media (max-width: 860px) {
+  .auth-card, .auth-card.lebar { grid-template-columns: 1fr; max-width: 560px; min-height: 0; }
+  .auth-sisi { padding: 26px 24px 88px; }
+  .auth-sapa { font-size: 16px; margin-bottom: 10px; }
+  .auth-logo { width: 84px; height: 84px; margin-bottom: 8px; } .auth-logo img { width: 62px; height: 62px; }
+  .auth-nama { font-size: 24px; }
+  .auth-desk, .auth-kaki { display: none; }
+  .auth-ta { margin-top: 8px; }
+  .awan { top: auto; left: 0; right: 0; bottom: -1px; width: auto; height: 64px; }
+  .awan i { -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80'%3E%3Crect y='50' width='160' height='30'/%3E%3Ccircle cx='24' cy='52' r='28'/%3E%3Ccircle cx='82' cy='40' r='34'/%3E%3Ccircle cx='138' cy='54' r='26'/%3E%3Ccircle cx='0' cy='50' r='20'/%3E%3Ccircle cx='160' cy='50' r='20'/%3E%3C/svg%3E") 0 bottom / 160px 80px repeat-x;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='80'%3E%3Crect y='50' width='160' height='30'/%3E%3Ccircle cx='24' cy='52' r='28'/%3E%3Ccircle cx='82' cy='40' r='34'/%3E%3Ccircle cx='138' cy='54' r='26'/%3E%3Ccircle cx='0' cy='50' r='20'/%3E%3Ccircle cx='160' cy='50' r='20'/%3E%3C/svg%3E") 0 bottom / 160px 80px repeat-x; }
+  .awan i:nth-child(1) { transform: translateY(-24px); -webkit-mask-position: 70px bottom; mask-position: 70px bottom; }
+  .awan i:nth-child(2) { transform: translateY(-12px); -webkit-mask-position: 130px bottom; mask-position: 130px bottom; }
+  .auth-isi { padding: 6px 24px 30px; }
+  .auth-atas { position: static; margin-bottom: 4px; }
+  .auth-isi > .stepper, .auth-isi > .step-mobile, .auth-isi > .auth-judul:first-of-type { margin-top: 8px; }
+  .auth-atas { order: -1; }
+}
+@media (max-width: 520px) {
+  .auth-page { padding: 0; place-items: stretch; }
+  .auth-card, .auth-card.lebar { border-radius: 0; box-shadow: none; min-height: 100vh; align-content: start; }
+  .auth-isi { padding: 4px 18px 28px; }
+  .auth-judul { font-size: 22px; }
+  .auth-aksi .btn-pil { flex: 1; min-width: 0; }
+  .auth-atas { position: absolute; top: 12px; left: 14px; right: 14px; z-index: 2; margin: 0; }
+  .auth-atas .auth-kembali { color: #fff; }
+  .auth-atas .btn-ikon, .auth-atas button { color: #fff; border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.08); }
+  .auth-sisi { padding-top: 44px; }
+}
+.auth-card { position: relative; }
+@media (max-width: 520px) { .auth-isi { position: static; } }
+.auth-judul + .auth-form { margin-top: 18px; }
