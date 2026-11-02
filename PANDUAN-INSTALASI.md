@@ -15,6 +15,17 @@ Urutan pemasangan: **Backend dulu → salin URL → Frontend**.
 
 ---
 
+## BAGIAN U0 — Upgrade v2.2: kontak orang tua (bagi yang sudah memasang v2)
+
+Menambah **No. HP** dan **E-Mail** Ayah, Ibu, dan Wali di formulir (opsional). Salinan email bukti pendaftaran ikut dikirim ke email orang tua yang diisi.
+
+1. Apps Script: ganti isi `Code.gs` dengan **`Kode.gs` terbaru** → Simpan → jalankan **`upgradeSkema`** (6 kolom baru ditambahkan di ujung sheet `Pendaftar`) → **Deploy → Manage deployments → ✏️ Edit → New version → Deploy**.
+2. Frontend: timpa file dari ZIP **kecuali `js/config.js`** → `git add .` → `git commit -m "Kontak orang tua"` → `git push` → buka situs, tekan **Ctrl+Shift+R**.
+
+Kolom ini tidak masuk **Ekspor Dapodik** (template Dapodik tidak memilikinya), tetapi tampil di Detail Pendaftar, PDF bukti, dan sheet `Pendaftar`.
+
+---
+
 ## BAGIAN U — Upgrade ke v2 (bagi yang sudah memasang v1)
 
 Data pendaftar, password admin, dan pengaturan lama **tetap aman**. Struktur database diperbarui otomatis.

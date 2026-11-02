@@ -11,7 +11,8 @@ const LANGKAH = ['Data Siswa', 'Alamat & Kontak', 'Orang Tua/Wali', 'Periodik & 
 const F = (k, label, o = {}) => Object.assign({ k, label, t: 'text' }, o);
 const ORTU = (p, wajib) => [F(p + '_Nama', 'Nama', { req: wajib, upper: true }), F(p + '_NIK', 'NIK', { req: wajib, t: 'num', len: 16, hint: '16 digit sesuai KK' }),
   F(p + '_Tempat_Lahir', 'Tempat Lahir'), F(p + '_Tgl_Lahir', 'Tanggal Lahir', { t: 'date' }), F(p + '_Pendidikan', 'Jenjang Pendidikan', { t: 'select', ref: 'Pendidikan' }),
-  F(p + '_Pekerjaan', 'Pekerjaan', { t: 'select', ref: 'Pekerjaan' }), F(p + '_Penghasilan', 'Penghasilan', { t: 'select', ref: 'Penghasilan', full: true })];
+  F(p + '_Pekerjaan', 'Pekerjaan', { t: 'select', ref: 'Pekerjaan' }), F(p + '_Penghasilan', 'Penghasilan', { t: 'select', ref: 'Penghasilan', full: true }),
+  F(p + '_HP', 'No. HP / WhatsApp', { t: 'tel', wa: true, hint: 'Contoh: 081234567890' }), F(p + '_Email', 'E-Mail', { t: 'email', hint: 'Salinan bukti pendaftaran ikut dikirim ke sini' })];
 const FIELDS = {
   1: [F('Nama', 'Nama Lengkap', { req: true, full: true, upper: true, hint: 'Sesuai akta kelahiran / ijazah', ac: 'name' }), F('Jenis_Kelamin', 'Jenis Kelamin', { req: true, t: 'jk', full: true }),
     F('NISN', 'NISN', { req: true, t: 'num', len: 10, lock: true, hint: 'Sesuai akun — tidak dapat diubah' }), F('NIK', 'NIK Siswa', { req: true, t: 'num', len: 16, hint: '16 digit sesuai Kartu Keluarga' }),
@@ -24,7 +25,8 @@ const FIELDS = {
     F('Jarak_Rumah', 'Jarak Rumah ke Sekolah', { req: true, t: 'dec', suf: 'KM' }), F('Telepon', 'Telepon Rumah', { t: 'tel' }),
     F('HP', 'No. HP / WhatsApp', { req: true, t: 'tel', hint: 'Contoh: 081234567890', ac: 'tel' }), F('Email', 'E-Mail', { req: true, t: 'email', full: true, hint: 'Bukti pendaftaran & PDF dikirim ke email ini', ac: 'email' })],
   3: ORTU('Ayah', true).concat(ORTU('Ibu', true)).concat([F('Wali_Nama', 'Nama', { upper: true }), F('Wali_NIK', 'NIK', { t: 'num', len: 16 }), F('Wali_Tahun_Lahir', 'Tahun Lahir', { t: 'num', len: 4 }),
-    F('Wali_Pendidikan', 'Jenjang Pendidikan', { t: 'select', ref: 'Pendidikan' }), F('Wali_Pekerjaan', 'Pekerjaan', { t: 'select', ref: 'Pekerjaan' }), F('Wali_Penghasilan', 'Penghasilan', { t: 'select', ref: 'Penghasilan' })]),
+    F('Wali_Pendidikan', 'Jenjang Pendidikan', { t: 'select', ref: 'Pendidikan' }), F('Wali_Pekerjaan', 'Pekerjaan', { t: 'select', ref: 'Pekerjaan' }), F('Wali_Penghasilan', 'Penghasilan', { t: 'select', ref: 'Penghasilan' }),
+    F('Wali_HP', 'No. HP / WhatsApp', { t: 'tel', wa: true }), F('Wali_Email', 'E-Mail', { t: 'email' })]),
   4: [F('Sekolah_Asal', 'Nama Sekolah Asal (SMP/MTs)', { req: true, full: true }), F('No_Seri_Ijazah', 'No. Seri Ijazah', { full: true, hint: 'Kosongkan jika baru memiliki SKL' }),
     F('Berat_Badan', 'Berat Badan', { req: true, t: 'dec', suf: 'kg' }), F('Tinggi_Badan', 'Tinggi Badan', { req: true, t: 'dec', suf: 'cm' }), F('Lingkar_Kepala', 'Lingkar Kepala', { t: 'dec', suf: 'cm' })]
 };
@@ -94,7 +96,8 @@ function stepBody(n) {
   if (n === 3) {
     const k = (p, t, ico, arr, wali) => `<div class="ortu-card"><header>${ic(ico)} ${t}${wali ? `<label class="cek" style="margin-left:auto;font-weight:600;font-family:var(--font)"><span class="switch"><input type="checkbox" id="tog-wali" ${Form.wali ? 'checked' : ''}><span></span></span> Isi data wali</label>` : ''}</header>
       <div class="isi" ${wali && !Form.wali ? 'hidden' : ''}>${grid(arr)}</div></div>`;
-    return k('Ayah', 'Data Ayah Kandung', 'user', FIELDS[3].slice(0, 7)) + k('Ibu', 'Data Ibu Kandung', 'user', FIELDS[3].slice(7, 14)) + k('Wali', 'Data Wali (opsional)', 'user-round', FIELDS[3].slice(14), true);
+    const dari = (p) => FIELDS[3].filter((f) => f.k.startsWith(p + '_'));
+    return k('Ayah', 'Data Ayah Kandung', 'user', dari('Ayah')) + k('Ibu', 'Data Ibu Kandung', 'user', dari('Ibu')) + k('Wali', 'Data Wali (opsional)', 'user-round', dari('Wali'), true);
   }
   if (n === 4) return `<div class="sub-judul">${ic('school')} Sekolah Asal</div>${grid(FIELDS[4].slice(0, 2))}<div class="sub-judul">${ic('ruler')} Data Periodik</div>${grid(FIELDS[4].slice(2))}`;
   if (n === 5) {
@@ -119,7 +122,7 @@ function unggahTile(b) {
   </div>`;
 }
 function ringkasan() {
-  const lbl = {}; ALL_FIELDS.forEach((f) => { lbl[f.k] = f.label; });
+  const lbl = {}; ALL_FIELDS.forEach((f) => { const m = f.k.match(/^(Ayah|Ibu|Wali)_/); lbl[f.k] = m ? m[1] + ' · ' + f.label : f.label; });
   const blok = (judul, keys, step) => `<details ${step === 1 ? 'open' : ''}><summary><span>${judul}</span><button class="btn btn-ghost btn-sm" type="button" data-ke="${step}">${ic('pencil', 'ic-sm')} Ubah</button></summary>
     <div class="kv">${keys.filter((k) => Form.data[k] || ['Nama'].includes(k)).map((k) => `<div>${esc(lbl[k] || k)}</div><div>${esc(k === 'Jenis_Kelamin' ? (Form.data[k] === 'P' ? 'Perempuan' : 'Laki-laki') : Form.data[k] || '-')}</div>`).join('')}</div></details>`;
   const pre = (p, keys) => keys.map((k) => k);
